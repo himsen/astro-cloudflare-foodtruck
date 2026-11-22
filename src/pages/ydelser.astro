@@ -1,0 +1,177 @@
+---
+import Base from '../layouts/Base.astro';
+import Ikon from '../components/art/Ikon.astro';
+
+export const prerender = true;
+
+// What can be booked. Foodtruck facts come from the truck's own menu board;
+// the pølsevogn facts are transcribed from the owner's "Lej en pølsevogn"
+// flyer (raw_pictures/fb9_lej_en_poelsevogn.jpg). Helstegt gris is shown on
+// his own photo but not described anywhere he wrote — confirm before go-live.
+const ydelser = [
+  {
+    id: 'foodtruck',
+    navn: 'Foodtrucken',
+    kort: 'Spydstegt BBQ-kylling, lavet på stedet.',
+    foto: { src: '/photos/ydelser-800.webp', w: 800, h: 600, alt: 'Foodtrucken med lugen åben og kyllinger på spyddet' },
+    tekst:
+      'Vi kommer med foodtrucken og laver maden på stedet til dit arrangement. Kyllingerne steges på spyd i vognen, så dine gæster får dem varme og sprøde.',
+    punkter: [
+      '½ grillstegte BBQ-kyllinger',
+      'Pommes frites, coleslaw og salater',
+      'Agurksalat og dyppelse',
+      'Børnemenu med kyllingenuggets eller hot wings',
+    ],
+    ekstra: 'Foodtrucken står også på faste pladser hver uge.',
+  },
+  {
+    id: 'polsevogn',
+    navn: "Pølsevognen “Tonny's”",
+    kort: 'Kvalitetspølser og flæskestegssandwich.',
+    foto: { src: '/photos/tonnys-800.webp', w: 800, h: 600, alt: "Tonny's røde pølsevogn med lugerne åbne" },
+    tekst:
+      'Gør det nemt og bekvemt for dig selv, og giv dine gæster en anderledes oplevelse. Ved “Tonny’s” pølsevogn lytter vi efter, hvad den enkelte kunde har af ønsker, og laver derfor altid prisen derefter.',
+    punkter: [
+      'Alle slags kvalitetspølser med div. tilbehør',
+      'Flæskestegssandwich med kød fra vores lokale slagter',
+      'Div. drikkevarer efter jeres ønske',
+    ],
+    ekstra: null,
+  },
+  {
+    id: 'gris',
+    navn: 'Helstegt gris',
+    kort: 'Til den store fest – efter aftale.',
+    foto: { src: '/photos/gris-600.webp', w: 600, h: 800, alt: 'Helstegt pattegris på grillen' },
+    tekst:
+      'Til de større fester kan vi stege en hel gris. Fortæl os om arrangementet, så aftaler vi detaljerne.',
+    punkter: [],
+    ekstra: null,
+  },
+] as const;
+
+const arrangementer = [
+  'Firmaarrangementer',
+  'Receptioner',
+  'Rejsegilder',
+  'Åbent hus',
+  'Messer',
+  'Fødselsdage',
+  'Konfirmationer',
+  'Bryllupper',
+  'Sommerfester',
+];
+
+
+const kortKlasse =
+  'rounded-2xl border border-kant bg-kort shadow-[0_6px_18px_-10px_rgb(42_20_12/0.3)]';
+---
+
+<Base title="Ydelser" description="Foodtruck, pølsevogn og helstegt gris til fester og firmaarrangementer.">
+  <section class="mx-auto w-full max-w-6xl px-4 pt-10 pb-12 sm:px-6 lg:pt-14">
+    <h1 class="text-h1">Ydelser</h1>
+    <p class="mt-4 max-w-[52ch] text-lg leading-relaxed">
+      Vi kommer med maden til jeres arrangement – til firmaet, til festen eller til byfesten, i
+      hele Danmark. Vælg foodtrucken, pølsevognen eller begge, og vi laver det
+      hele på stedet.
+    </p>
+
+    {/* Overview: what can be booked, at a glance. Each card jumps to its details. */}
+    <ul class="mt-10 grid gap-6 md:grid-cols-3">
+      {
+        ydelser.map((y) => (
+          <li>
+            <a href={`#${y.id}`} class={`group flex h-full flex-col overflow-hidden ${kortKlasse} hover:border-orange`}>
+              <img
+                src={y.foto.src}
+                width={y.foto.w}
+                height={y.foto.h}
+                alt=""
+                class="h-44 w-full object-cover"
+              />
+              <span class="flex flex-1 flex-col p-5">
+                <span class="font-display text-h3">{y.navn}</span>
+                <span class="mt-1 text-base text-daempet">{y.kort}</span>
+                <span class="mt-auto inline-flex items-center gap-2 pt-4 text-base font-bold text-orange-dyb">
+                  Læs mere
+                  <Ikon navn="pil" class="h-4 w-4 rotate-90" />
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {/* One section per option, photo and text side by side, alternating. */}
+  {
+    ydelser.map((y, i) => (
+      <section id={y.id} aria-labelledby={`${y.id}-titel`} class:list={['scroll-mt-4', i % 2 === 0 && 'bg-flade']}>
+        <div class="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-2 md:items-center md:gap-12 lg:py-16">
+          <img
+            src={y.foto.src}
+            width={y.foto.w}
+            height={y.foto.h}
+            loading="lazy"
+            alt={y.foto.alt}
+            class:list={['h-64 w-full rounded-2xl object-cover sm:h-80', i % 2 === 1 && 'md:order-2']}
+          />
+          <div>
+            <h2 id={`${y.id}-titel`} class="text-h2">{y.navn}</h2>
+            <p class="mt-4 text-lg leading-relaxed">{y.tekst}</p>
+            {y.punkter.length > 0 && (
+              <ul class="mt-5 flex flex-col gap-2.5 text-base font-medium">
+                {y.punkter.map((p) => (
+                  <li class="flex gap-2.5">
+                    <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange text-white" aria-hidden="true">
+                      <Ikon navn="flueben" class="h-3 w-3" />
+                    </span>
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {y.ekstra && (
+              <p class="mt-5 text-base text-daempet">
+                {y.ekstra}{' '}
+                <a href="/#plan" class="font-semibold text-orange-dyb underline decoration-2 underline-offset-4">Se hvor vi står</a>.
+              </p>
+            )}
+            <a
+              href="/book"
+              class="mt-7 inline-flex min-h-12 items-center gap-2.5 rounded-lg bg-orange px-5 py-3 text-base font-bold text-tekst hover:bg-orange-dyb hover:text-white"
+            >
+              Få et tilbud
+              <Ikon navn="pil" class="h-5 w-5" />
+            </a>
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <section aria-labelledby="arr-titel" class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
+    <h2 id="arr-titel" class="text-h2">Perfekt til</h2>
+    <ul class="mt-5 flex flex-wrap gap-2">
+      {
+        arrangementer.map((a) => (
+          <li class="rounded-full border border-kant bg-kort px-4 py-2 text-base font-semibold">{a}</li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <div class="bg-flade">
+    <div class="mx-auto flex w-full max-w-6xl flex-col items-start gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <p class="font-display text-h3">Skal vi stå for maden?</p>
+      <a
+        href="/book"
+        class="inline-flex min-h-12 items-center gap-3 rounded-lg bg-orange px-5 py-3 text-base font-bold text-tekst hover:bg-orange-dyb hover:text-white"
+      >
+        Kontakt os for et tilbud
+        <Ikon navn="pil" class="h-5 w-5" />
+      </a>
+    </div>
+  </div>
+</Base>

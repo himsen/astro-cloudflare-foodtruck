@@ -1,0 +1,66 @@
+---
+/**
+ * The pølsevogn — "Tonny's" — drawn from raw_pictures/fb5.jpg.
+ *
+ * A bright red single-axle trailer with two serving hatches, both awnings
+ * propped open, hot dogs painted on the body either side of the same blue
+ * signboard the truck carries. Secondary to the truck everywhere it appears,
+ * and never drawn larger than it.
+ */
+interface Props {
+  class?: string;
+  titel?: string;
+  streg?: string;
+}
+
+const { class: klasse = '', titel, streg = 'var(--color-sort)' } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 300 175.5"
+  class={klasse}
+  style={`--streg:${streg}`}
+  role={titel ? 'img' : undefined}
+  aria-hidden={titel ? undefined : 'true'}
+  focusable="false"
+>
+  {titel && <title>{titel}</title>}
+  <g
+    fill="none"
+    stroke="var(--streg, #111111)"
+    stroke-width="5"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  >
+    <!-- Body -->
+    <path d="M40 52h214v92H40z" fill="var(--color-tomat, #e8341f)"></path>
+
+    <!-- Two hatches, awnings propped open -->
+    <path d="M56 66h80v40H56z" fill="var(--color-papir, #ffffff)"></path>
+    <path d="M158 66h80v40h-80z" fill="var(--color-papir, #ffffff)"></path>
+    <path d="M52 64h88l10-26H62z" fill="var(--color-tomat, #e8341f)"></path>
+    <path d="M154 64h88l10-26h-78z" fill="var(--color-tomat, #e8341f)"></path>
+    <path d="M92 64l6-26M196 64l6-26" stroke-width="4"></path>
+    <!-- bottles on the counters -->
+    <path d="M70 106V94h9v12M86 106V96h8v10M172 106V94h9v12" stroke-width="4"></path>
+
+    <!-- Hot dogs painted either side of the signboard -->
+    <g transform="translate(58 122)">
+      <path d="M0 6a10 10 0 0 1 10-10h28a10 10 0 0 1 0 20H10A10 10 0 0 1 0 6z" fill="var(--color-gul, #ffc526)"></path>
+      <path d="M8 4c5-6 9 6 14 0s9 6 14 0" stroke-width="4"></path>
+    </g>
+    <g transform="translate(200 122)">
+      <path d="M0 6a10 10 0 0 1 10-10h28a10 10 0 0 1 0 20H10A10 10 0 0 1 0 6z" fill="var(--color-gul, #ffc526)"></path>
+      <path d="M8 4c5-6 9 6 14 0s9 6 14 0" stroke-width="4"></path>
+    </g>
+
+    <!-- Signboard -->
+    <path d="M116 118h62l-4 20h-54z" fill="var(--color-blaa-skilt, #5f8fa8)"></path>
+    <path d="M126 128h42" stroke-width="4"></path>
+
+    <!-- Single axle, legs and tow bar -->
+    <path d="M56 144v29M238 144v29M254 128l34 18"></path>
+    <circle cx="147" cy="156" r="17" fill="var(--streg, #111111)"></circle>
+    <circle cx="147" cy="156" r="6" fill="var(--color-papir, #ffffff)"></circle>
+  </g>
+</svg>

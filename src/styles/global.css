@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Fonts (self-hosted from /public/fonts, preloaded in Base.astro)
+
+   Alfa Slab One 400, latin — @fontsource/alfa-slab-one 5.3.0
+     https://cdn.jsdelivr.net/npm/@fontsource/alfa-slab-one@5.3.0/files/alfa-slab-one-latin-400-normal.woff2
+   Source Sans 3 variable 200-900, latin — @fontsource-variable/source-sans-3 5.3.1
+     https://cdn.jsdelivr.net/npm/@fontsource-variable/source-sans-3@5.3.1/files/source-sans-3-latin-wght-normal.woff2
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Alfa Slab One';
+  src: url('/fonts/alfa-slab-one-latin-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('/fonts/source-sans-3-latin-wght.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------------------------------------------------------------------------
+   Tokens — warm palette. Contrast pairs (WCAG ratios):
+     orange-dyb on creme 5.41, on flade 4.91 — small accent text and links
+     tekst on orange 5.2 — button labels; never white on orange
+     daempet on creme 8.24 — secondary text
+     mork-daempet on mork 10.5 — secondary text in nav and footer
+     white on orange-dyb 7.1 — button hover; white on fare 6.5
+   --------------------------------------------------------------------------- */
+@theme {
+  /* Warm palette */
+  --color-creme: #f6ead8; /* page background */
+  --color-flade: #efdfc6; /* quiet alternate band */
+  --color-tekst: #2a140c; /* body text, labels on orange buttons */
+  --color-daempet: #5a3d30; /* secondary text */
+  --color-orange: #e8640c; /* primary button fill, large type */
+  --color-orange-dyb: #a33f00; /* small accent text and links */
+  --color-mork: #1f0e08; /* nav, footer, call bar only */
+  --color-mork-tekst: #fbefe0; /* text on mork */
+  --color-mork-daempet: #d4bfa8; /* secondary text on mork */
+  --color-fokus: #ffb347; /* focus ring inside [data-mork] */
+  --color-fare: #b3261e; /* Lukket, after-16:00 notice, admin errors */
+  --color-fare-lys: #fbe4e1; /* tint behind a failed admin field */
+
+  --color-papir: #ffffff; /* form-field backgrounds only */
+  --color-kort: #fdf6ec; /* warm card face on creme; tekst on it is 16:1 */
+  --color-smiley: #247032; /* Findsmiley badge: 5.1:1 on creme, white on it 5.9:1, 3.3:1 on mork (graphic) */
+  --color-kant: #d8c3a4; /* rules and hairlines */
+
+  /* Type */
+  --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Alfa Slab One', Georgia, serif;
+
+  /* Warm type scale */
+  --text-h1: clamp(2.4rem, 1.5rem + 4.2vw, 5rem);
+  --text-h2: clamp(1.75rem, 1.35rem + 1.8vw, 2.75rem);
+  --text-h3: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
+  --text-by: clamp(2rem, 1.4rem + 3vw, 3.5rem); /* town name on the today card */
+  --text-by--line-height: 1.05;
+
+  /* Small uppercase labels. 12 px is the floor on this site. */
+  --text-etiket: 0.75rem;
+  --text-etiket--line-height: 1.25;
+  --text-etiket--letter-spacing: 0.14em;
+}
+
+/* ---------------------------------------------------------------------------
+   Utilities
+   --------------------------------------------------------------------------- */
+
+/* A long word — a location name, an email address, a compound Danish heading —
+   must wrap rather than widen the page.
+
+   `break-word`, not `anywhere`: `anywhere` lets the greedy line breaker split
+   a word even when a space earlier in the line would have done, which turns
+   SKANDERBORG TORV into SKANDERBOR / G TORV on a wide screen. `break-word`
+   only breaks a word that cannot fit a line on its own. It does not reduce the
+   min-content contribution, so grid and flex children that hold long words
+   also need min-w-0 — see /kontakt. */
+@utility skiltbrud {
+  overflow-wrap: break-word;
+  hyphens: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* viewport-fit=cover: keep content out of the landscape notch. Applied to main and the
+     full-bleed dark bars (not body) so the bars' backgrounds still reach the screen edge. */
+  main,
+  [data-mork] {
+    padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  }
+
+  /* Focus is never removed: dark ring on light, amber ring inside [data-mork]. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--color-tekst);
+    outline-offset: 2px;
+  }
+
+  [data-mork] :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline-color: var(--color-fokus);
+  }
+
+  ::selection {
+    background: var(--color-orange);
+    color: var(--color-tekst);
+  }
+
+  p,
+  dd {
+    text-wrap: pretty;
+  }
+
+  /* :where keeps specificity at zero so utility classes on headings still win */
+  :where(h1, h2, h3) {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a,
+    button {
+      transition:
+        background-color 0.15s,
+        color 0.15s,
+        transform 0.15s;
+    }
+
+    :where(a, button):active {
+      transform: translateY(1px);
+    }
+  }
+}

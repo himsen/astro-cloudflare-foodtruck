@@ -1,0 +1,58 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "chicks-on-wheels",
+  // The developer's own account. Required, not optional: this login also reaches
+  // another, unrelated account, and wrangler refuses to guess between
+  // them. Not a secret — account ids appear in every dashboard URL.
+  "account_id": "<your-account-id>",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-08-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  // Preview URLs default to whatever `workers_dev` is, so without this the
+  // dashboard toggle gets reset to off by the next `wrangler deploy` that
+  // Workers Builds runs. Set explicitly so the preview URL survives builds.
+  // /admin on the preview hostname is covered by the Access application.
+  "preview_urls": true,
+  // The public site. Custom domains: Cloudflare creates the DNS records and the
+  // certificate itself, so the zone holds no hand-made records for these two.
+  // Requires the chicksonwheels.dk zone to be active in this account.
+  "routes": [
+    { "pattern": "chicksonwheels.dk", "custom_domain": true },
+    { "pattern": "www.chicksonwheels.dk", "custom_domain": true }
+  ],
+  "vars": {
+    // The Access application in front of /admin. Neither is a secret.
+    //
+    // ACCESS_AUD is the application's **Application Audience (AUD) Tag** — 64
+    // hex characters. It is not the application id and not the policy id,
+    // both of which are dashed UUIDs and both of which fail verification with
+    // the same silent 403. Read it from Zero Trust → Access → Applications →
+    // the app → Overview, or from the `aud` in the login redirect.
+    //
+    // The middleware fails closed on empty values, so /admin denies every
+    // request until both are genuinely set.
+    "ACCESS_TEAM_DOMAIN": "<your-team>.cloudflareaccess.com",
+    "ACCESS_AUD": "<your-access-aud-tag>"
+  },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  },
+  "observability": { "enabled": true },
+  // The Astro adapter injects this binding without an id, which makes wrangler
+  // provision a namespace on every deploy. Pinning the id keeps CI deploys
+  // pointed at the one that already exists.
+  "kv_namespaces": [
+    { "binding": "SESSION", "id": "<your-kv-namespace-id>" }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "chicks_on_wheels",
+      "database_id": "<your-d1-database-id>",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+---
+import type { DayEntry } from '../lib/types';
+import Ikon from './art/Ikon.astro';
+
+/**
+ * Today. The single most important thing on the site, so it is the one dark
+ * feature card in the "Find vognen" section.
+ *
+ * The town is the <h3> under the section's <h2>, with a visually hidden prefix
+ * so it reads as a sentence to a screen reader. On mork: mork-tekst is 16:1,
+ * orange 5.6:1, mork-daempet 10.5:1; tekst on the orange pill 5.2:1.
+ */
+interface Props {
+  day: DayEntry;
+  /**
+   * The next day the truck is open, when today is closed. A closed sign that
+   * only says "Lukket" is a dead end for someone standing on the street.
+   */
+  next?: DayEntry;
+}
+
+const { day, next } = Astro.props;
+const lukket = day.isClosed;
+---
+
+<article
+  data-mork
+  class="flex flex-col rounded-2xl bg-mork p-6 text-mork-tekst shadow-[0_10px_30px_-12px_rgb(42_20_12/0.55)] sm:p-8"
+>
+  <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <span class="rounded-full bg-orange px-3 py-0.5 text-sm font-bold text-tekst uppercase">I dag</span>
+    <span class="text-sm text-mork-daempet uppercase">{`${day.weekdayName} ${day.displayDate}`}</span>
+  </p>
+
+  <h3 class="font-display text-by skiltbrud mt-4">
+    <span class="sr-only">I dag:</span>
+    {lukket ? <span class="rounded-md bg-fare px-3 text-white box-decoration-clone">Lukket</span> : day.locationName}
+  </h3>
+
+  {
+    !lukket && day.address && (
+      <p class="mt-2 flex items-start gap-2 text-lg font-semibold sm:text-xl">
+        <Ikon navn="kort" class="mt-1 h-5 w-5 shrink-0 text-orange" />
+        {day.address}
+      </p>
+    )
+  }
+
+  {
+    !lukket && day.startTime && day.endTime && (
+      <p class="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-t border-white/15 pt-5">
+        <span class="text-etiket font-bold text-mork-daempet uppercase">Åbent</span>
+        <span class="text-4xl font-semibold tabular-nums text-orange sm:text-5xl">
+          {day.startTime}–{day.endTime}
+        </span>
+      </p>
+    )
+  }
+
+  {day.note && <p class="mt-4 text-base font-semibold sm:text-lg">{day.note}</p>}
+
+  {
+    lukket && next && (
+      <div class="mt-6 border-t border-white/15 pt-5">
+        <p class="text-etiket font-bold text-mork-daempet uppercase">Hvor kan du finde os næste gang?</p>
+        <p class="mt-2 text-xl font-bold">
+          {next.weekdayName} · {next.locationName}
+        </p>
+        {next.startTime && next.endTime && (
+          <p class="mt-1 text-lg tabular-nums text-mork-daempet">
+            {next.displayDate}, {next.startTime}–{next.endTime}
+          </p>
+        )}
+      </div>
+    )
+  }
+
+  {/* Grows when the card is stretched to the tiles' height, so the button
+      sits at the bottom; zero height otherwise. */}
+  <div class="flex-1" aria-hidden="true"></div>
+
+  {
+    !lukket && day.mapUrl && (
+      <a
+        href={day.mapUrl}
+        rel="noopener noreferrer"
+        target="_blank"
+        class="mt-7 flex min-h-12 items-center justify-center gap-2.5 rounded-lg bg-orange px-5 py-3 text-base font-bold text-tekst hover:bg-orange-dyb hover:text-white sm:self-start"
+      >
+        <Ikon navn="kort" class="h-5 w-5" />
+        Vis på kort
+      </a>
+    )
+  }
+</article>

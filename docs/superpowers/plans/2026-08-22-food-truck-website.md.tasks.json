@@ -1,0 +1,127 @@
+{
+  "planPath": "docs/superpowers/plans/2026-08-22-food-truck-website.md",
+  "tasks": [
+    {
+      "id": 0,
+      "subject": "Task 0: Project scaffold",
+      "status": "completed",
+      "description": "**Goal:** An Astro + TypeScript + Tailwind project that builds for Cloudflare Workers, with both Vitest configurations in place.\n\n**Files:**\n- `package.json`\n- `astro.config.mjs`\n- `tsconfig.json`\n- `wrangler.jsonc`\n- `src/env.d.ts`\n- `src/styles/global.css`\n- `vitest.config.ts`\n- `.gitignore`\n\n**Acceptance Criteria:**\n- [ ] pnpm build produces dist/_worker.js/index.js\n- [ ] pnpm astro check reports no type errors\n- [ ] Tailwind classes apply on a page\n- [ ] node_modules, dist, .astro and .wrangler are git-ignored\n\n**Verify:** `pnpm build && pnpm astro check`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 0: Project scaffold\n\n```json:metadata\n{\"files\": [\"package.json\", \"astro.config.mjs\", \"tsconfig.json\", \"wrangler.jsonc\", \"src/env.d.ts\", \"src/styles/global.css\", \"vitest.config.ts\", \".gitignore\"], \"verifyCommand\": \"pnpm build && pnpm astro check\", \"acceptanceCriteria\": [\"pnpm build produces dist/_worker.js/index.js\", \"pnpm astro check reports no type errors\", \"Tailwind classes apply on a page\", \"node_modules, dist, .astro and .wrangler are git-ignored\"]}\n```"
+    },
+    {
+      "id": 1,
+      "subject": "Task 1: Date helpers",
+      "status": "completed",
+      "description": "**Goal:** Time-zone-correct date primitives that every other module depends on, with the Copenhagen rollover pinned by tests.\n\n**Files:**\n- `src/lib/datetime.ts`\n- `tests/unit/datetime.test.ts`\n\n**Acceptance Criteria:**\n- [ ] todayInCopenhagen returns the Copenhagen calendar day in both CET and CEST\n- [ ] addDays crosses month and year boundaries\n- [ ] weekdayIndex returns 0 for Monday through 6 for Sunday\n- [ ] formatDanishDate renders a date for display\n\n**Verify:** `pnpm vitest run tests/unit/datetime.test.ts`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 1: Date helpers\n\n```json:metadata\n{\"files\": [\"src/lib/datetime.ts\", \"tests/unit/datetime.test.ts\"], \"verifyCommand\": \"pnpm vitest run tests/unit/datetime.test.ts\", \"acceptanceCriteria\": [\"todayInCopenhagen returns the Copenhagen calendar day in both CET and CEST\", \"addDays crosses month and year boundaries\", \"weekdayIndex returns 0 for Monday through 6 for Sunday\", \"formatDanishDate renders a date for display\"]}\n```",
+      "blockedBy": [
+        0
+      ]
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Schedule resolution",
+      "status": "completed",
+      "description": "**Goal:** The pure function that turns the weekly pattern plus exceptions into the seven days shown on the front page.\n\n**Files:**\n- `src/lib/types.ts`\n- `src/lib/schedule.ts`\n- `tests/unit/schedule.test.ts`\n\n**Acceptance Criteria:**\n- [ ] resolveWeek returns exactly seven entries starting with today\n- [ ] An exception replaces the pattern entry entirely\n- [ ] A day is closed when the exception says so or the pattern has no location\n- [ ] The window crosses month and year boundaries\n- [ ] The function performs no I/O and reads no clock\n\n**Verify:** `pnpm vitest run tests/unit/schedule.test.ts`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 2: Schedule resolution\n\n```json:metadata\n{\"files\": [\"src/lib/types.ts\", \"src/lib/schedule.ts\", \"tests/unit/schedule.test.ts\"], \"verifyCommand\": \"pnpm vitest run tests/unit/schedule.test.ts\", \"acceptanceCriteria\": [\"resolveWeek returns exactly seven entries starting with today\", \"An exception replaces the pattern entry entirely\", \"A day is closed when the exception says so or the pattern has no location\", \"The window crosses month and year boundaries\", \"The function performs no I/O and reads no clock\"]}\n```",
+      "blockedBy": [
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Database schema and worker test harness",
+      "status": "completed",
+      "description": "**Goal:** The D1 database, its migration, and a Vitest setup that runs tests against a real local D1 with migrations applied.\n\n**Files:**\n- `migrations/0001_initial.sql`\n- `vitest.workers.config.ts`\n- `tests/worker/apply-migrations.ts`\n- `tests/worker/env.d.ts`\n- `tests/worker/tsconfig.json`\n- `tests/worker/schema.test.ts`\n- `wrangler.jsonc`\n\n**Acceptance Criteria:**\n- [ ] A D1 database named chicks_on_wheels exists and is bound as DB\n- [ ] The migration creates three tables and seeds seven weekly_stops rows\n- [ ] Worker tests run with migrations already applied\n- [ ] Each test file starts from a clean database\n\n**Verify:** `pnpm test:worker`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 3: Database schema and worker test harness\n\n```json:metadata\n{\"files\": [\"migrations/0001_initial.sql\", \"vitest.workers.config.ts\", \"tests/worker/apply-migrations.ts\", \"tests/worker/env.d.ts\", \"tests/worker/tsconfig.json\", \"tests/worker/schema.test.ts\", \"wrangler.jsonc\"], \"verifyCommand\": \"pnpm test:worker\", \"acceptanceCriteria\": [\"A D1 database named chicks_on_wheels exists and is bound as DB\", \"The migration creates three tables and seeds seven weekly_stops rows\", \"Worker tests run with migrations already applied\", \"Each test file starts from a clean database\"]}\n```",
+      "blockedBy": [
+        0
+      ]
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: Data access layer",
+      "status": "completed",
+      "description": "**Goal:** Every SQL statement in the project, in one module, tested against a real D1.\n\n**Files:**\n- `src/lib/db.ts`\n- `tests/worker/db.test.ts`\n\n**Acceptance Criteria:**\n- [ ] Reads return the seven stops and only upcoming exceptions\n- [ ] updateWeeklyStop updates rather than inserts\n- [ ] upsertException replaces an existing exception for the same date\n- [ ] setSettings inserts new keys and overwrites existing ones\n- [ ] db.ts is the only module containing SQL\n\n**Verify:** `pnpm test:worker`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 4: Data access layer\n\n```json:metadata\n{\"files\": [\"src/lib/db.ts\", \"tests/worker/db.test.ts\"], \"verifyCommand\": \"pnpm test:worker\", \"acceptanceCriteria\": [\"Reads return the seven stops and only upcoming exceptions\", \"updateWeeklyStop updates rather than inserts\", \"upsertException replaces an existing exception for the same date\", \"setSettings inserts new keys and overwrites existing ones\", \"db.ts is the only module containing SQL\"]}\n```",
+      "blockedBy": [
+        2,
+        3
+      ]
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: Site shell",
+      "status": "completed",
+      "description": "**Goal:** The layout, navigation, and base styling every page shares.\n\n**Files:**\n- `src/layouts/Base.astro`\n- `src/components/Nav.astro`\n- `src/components/Footer.astro`\n- `src/pages/index.astro`\n\n**Acceptance Criteria:**\n- [ ] Pages render with lang=da and a Danish title\n- [ ] Navigation links to /, /ydelser, /kontakt and marks the current page\n- [ ] The layout is legible on a phone without horizontal scrolling\n- [ ] Tailwind styles apply\n\n**Verify:** `pnpm build && pnpm astro check`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 5: Site shell\n\n```json:metadata\n{\"files\": [\"src/layouts/Base.astro\", \"src/components/Nav.astro\", \"src/components/Footer.astro\", \"src/pages/index.astro\"], \"verifyCommand\": \"pnpm build && pnpm astro check\", \"acceptanceCriteria\": [\"Pages render with lang=da and a Danish title\", \"Navigation links to /, /ydelser, /kontakt and marks the current page\", \"The layout is legible on a phone without horizontal scrolling\", \"Tailwind styles apply\"]}\n```",
+      "blockedBy": [
+        0
+      ]
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: Front page",
+      "status": "completed",
+      "description": "**Goal:** Today's location, the coming week, and the banner, with a safe fallback when D1 is unavailable.\n\n**Files:**\n- `src/pages/index.astro`\n- `src/components/DayCard.astro`\n- `src/components/BannerNotice.astro`\n\n**Acceptance Criteria:**\n- [ ] Today is shown prominently followed by the next six days\n- [ ] A closed day reads Lukket, never an empty row\n- [ ] The banner shows only while current\n- [ ] A D1 failure renders a Danish notice and the contact phone number\n- [ ] The page is not cached\n\n**Verify:** `pnpm build && pnpm astro check`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 6: Front page\n\n```json:metadata\n{\"files\": [\"src/pages/index.astro\", \"src/components/DayCard.astro\", \"src/components/BannerNotice.astro\"], \"verifyCommand\": \"pnpm build && pnpm astro check\", \"acceptanceCriteria\": [\"Today is shown prominently followed by the next six days\", \"A closed day reads Lukket, never an empty row\", \"The banner shows only while current\", \"A D1 failure renders a Danish notice and the contact phone number\", \"The page is not cached\"]}\n```",
+      "blockedBy": [
+        2,
+        4,
+        5
+      ]
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Services and contact pages",
+      "status": "completed",
+      "description": "**Goal:** The two prerendered content pages, with copy in markdown so it is easy to change.\n\n**Files:**\n- `src/pages/ydelser.astro`\n- `src/pages/kontakt.astro`\n- `src/content/ydelser.md`\n\n**Acceptance Criteria:**\n- [ ] Both pages are prerendered\n- [ ] /ydelser covers the food truck, the poelsevogn and events\n- [ ] /kontakt shows phone, email and service area with working links\n- [ ] Copy lives in markdown\n\n**Verify:** `pnpm build && ls dist/client/ydelser/index.html dist/client/kontakt/index.html`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 7: Services and contact pages\n\n```json:metadata\n{\"files\": [\"src/pages/ydelser.astro\", \"src/pages/kontakt.astro\", \"src/content/ydelser.md\"], \"verifyCommand\": \"pnpm build && ls dist/client/ydelser/index.html dist/client/kontakt/index.html\", \"acceptanceCriteria\": [\"Both pages are prerendered\", \"/ydelser covers the food truck, the poelsevogn and events\", \"/kontakt shows phone, email and service area with working links\", \"Copy lives in markdown\"]}\n```",
+      "blockedBy": [
+        5
+      ]
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: Form validation",
+      "status": "completed",
+      "description": "**Goal:** Every rejection rule for the admin forms, as pure functions with Danish error messages.\n\n**Files:**\n- `src/lib/validate.ts`\n- `tests/unit/validate.test.ts`\n\n**Acceptance Criteria:**\n- [ ] Times must be HH:MM and end must be after start\n- [ ] An open day requires a location name\n- [ ] Exception dates accept today, reject earlier dates and reject nonsense\n- [ ] Banner text requires an end date of today or later\n- [ ] Every error message is in Danish and names its field\n\n**Verify:** `pnpm vitest run tests/unit/validate.test.ts`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 8: Form validation\n\n```json:metadata\n{\"files\": [\"src/lib/validate.ts\", \"tests/unit/validate.test.ts\"], \"verifyCommand\": \"pnpm vitest run tests/unit/validate.test.ts\", \"acceptanceCriteria\": [\"Times must be HH:MM and end must be after start\", \"An open day requires a location name\", \"Exception dates accept today, reject earlier dates and reject nonsense\", \"Banner text requires an end date of today or later\", \"Every error message is in Danish and names its field\"]}\n```",
+      "blockedBy": [
+        2
+      ]
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Cloudflare Access verification",
+      "status": "completed",
+      "description": "**Goal:** Verified identity for /admin, with the forged-header path closed.\n\n**Files:**\n- `src/lib/access.ts`\n- `src/middleware.ts`\n- `tests/unit/access.test.ts`\n- `wrangler.jsonc`\n\n**Acceptance Criteria:**\n- [ ] A correctly signed token with matching issuer and audience yields the email\n- [ ] Wrong issuer, wrong audience, expired token or bad signature is rejected\n- [ ] A missing header is rejected\n- [ ] Middleware returns 403 for /admin on failure and leaves public pages untouched\n- [ ] The verifier accepts an injected key set so it is testable offline\n\n**Verify:** `pnpm vitest run tests/unit/access.test.ts`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 9: Cloudflare Access verification\n\n```json:metadata\n{\"files\": [\"src/lib/access.ts\", \"src/middleware.ts\", \"tests/unit/access.test.ts\", \"wrangler.jsonc\"], \"verifyCommand\": \"pnpm vitest run tests/unit/access.test.ts\", \"acceptanceCriteria\": [\"A correctly signed token with matching issuer and audience yields the email\", \"Wrong issuer, wrong audience, expired token or bad signature is rejected\", \"A missing header is rejected\", \"Middleware returns 403 for /admin on failure and leaves public pages untouched\", \"The verifier accepts an injected key set so it is testable offline\"]}\n```",
+      "blockedBy": [
+        0
+      ]
+    },
+    {
+      "id": 10,
+      "subject": "Task 10: Admin screen",
+      "status": "completed",
+      "description": "**Goal:** The one page the owner uses - weekly pattern, exceptions and banner - handling its own form posts so a mistake never costs her what she typed.\n\n**Files:**\n- `src/pages/admin/index.astro`\n- `src/components/admin/StopRow.astro`\n- `src/components/admin/Field.astro`\n- `src/middleware.ts`\n- `tests/worker/admin.test.ts`\n- `package.json`\n\n**Acceptance Criteria:**\n- [ ] Three sections each with its own save button\n- [ ] A validation failure re-renders with submitted values and inline errors\n- [ ] A successful save redirects and shows a Danish confirmation\n- [ ] Deleting an exception asks for confirmation\n- [ ] The screen works with JavaScript disabled\n- [ ] Requests without a valid Access token get 403\n\n**Verify:** `pnpm test:all && pnpm build && pnpm astro check`\n\n**Steps:** See `docs/superpowers/plans/2026-08-22-food-truck-website.md` \u2192 Task 10: Admin screen\n\n```json:metadata\n{\"files\": [\"src/pages/admin/index.astro\", \"src/components/admin/StopRow.astro\", \"src/components/admin/Field.astro\", \"src/middleware.ts\", \"tests/worker/admin.test.ts\", \"package.json\"], \"verifyCommand\": \"pnpm test:all && pnpm build && pnpm astro check\", \"acceptanceCriteria\": [\"Three sections each with its own save button\", \"A validation failure re-renders with submitted values and inline errors\", \"A successful save redirects and shows a Danish confirmation\", \"Deleting an exception asks for confirmation\", \"The screen works with JavaScript disabled\", \"Requests without a valid Access token get 403\"]}\n```",
+      "blockedBy": [
+        4,
+        8,
+        9
+      ]
+    },
+    {
+      "id": 11,
+      "subject": "Task 11: Deploy pipeline (no domain required)",
+      "status": "in_progress",
+      "description": "**Goal:** Prove the build-migrate-deploy path against the real Cloudflare account.\n\n**Done:**\n- Migrations applied to the remote D1 (`0001_initial.sql`; three tables + seven seeded weekly_stops rows)\n- `docs/runbook.md` written; README deploy section updated\n\n**Remaining (owner):** connect the GitHub repo under the Worker's Settings -> Build.\nBuild command `pnpm build`; deploy command `pnpm wrangler d1 migrations apply chicks_on_wheels --remote && pnpm wrangler deploy`; branch `main`.\nThe Worker does not exist on the account until that first build runs.\n\n**Note:** `pnpm wrangler deploy` was deliberately NOT run locally - deploys are git-connected.",
+      "blockedBy": [
+        6,
+        7,
+        10
+      ]
+    },
+    {
+      "id": 12,
+      "subject": "Task 12: Domain, Access, and real content",
+      "status": "pending",
+      "description": "**Goal:** The site live on its domain with /admin reachable only by the owner.\n\n**Blocked on:** the `chicksonwheels.dk` transfer.\n\n**Steps:** See the plan -> Task 12. Register/attach the domain, create the Access application, put the team domain and AUD tag in `wrangler.jsonc`, seed the real weekly pattern, replace the placeholder phone and email, and add the Access sections to the runbook.",
+      "blockedBy": [
+        11
+      ]
+    }
+  ],
+  "lastUpdated": "2026-08-22T15:25:00Z"
+}

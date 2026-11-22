@@ -1,0 +1,48 @@
+---
+interface Props {
+  label: string;
+  name: string;
+  value?: string | null;
+  // Narrower than `string` so the value can be handed straight to <input type>,
+  // which `astro check` types strictly.
+  type?: astroHTML.JSX.HTMLInputTypeAttribute;
+  error?: string;
+  placeholder?: string;
+}
+
+const { label, name, value = '', type = 'text', error, placeholder } = Astro.props;
+const id = `field-${name}`;
+---
+
+<!-- Every dimension here is a floor, not a target: 16 px text so a phone does
+     not zoom on focus, 48 px tall so it can be hit with a thumb, and a 2 px
+     keyline so the field is visible in daylight. -->
+<div class="flex flex-col gap-1.5">
+  <label for={id} class="text-base font-bold">{label}</label>
+  <input
+    id={id}
+    name={name}
+    type={type}
+    value={value ?? ''}
+    placeholder={placeholder}
+    aria-invalid={error ? 'true' : undefined}
+    aria-describedby={error ? `${id}-error` : undefined}
+    class:list={[
+      'min-h-12 border-2 px-3 py-3 text-base',
+      error ? 'border-fare bg-fare-lys' : 'border-tekst bg-papir',
+    ]}
+  />
+  {
+    error && (
+      <p id={`${id}-error`} class="flex items-start gap-2 text-base font-bold text-fare">
+        <span
+          class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center bg-fare text-sm text-white"
+          aria-hidden="true"
+        >
+          !
+        </span>
+        {error}
+      </p>
+    )
+  }
+</div>

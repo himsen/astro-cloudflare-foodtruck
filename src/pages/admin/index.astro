@@ -1,0 +1,375 @@
+---
+import Base from '../../layouts/Base.astro';
+import Field from '../../components/admin/Field.astro';
+import StopRow from '../../components/admin/StopRow.astro';
+import Ikon from '../../components/art/Ikon.astro';
+import { todayInCopenhagen, formatDanishDate, DANISH_WEEKDAYS, weekdayIndex } from '../../lib/datetime';
+import { validateStop, validateException, validateBanner, validateFerie } from '../../lib/validate';
+import { resolveFerie, ferieBannerTekst } from '../../lib/ferie';
+import {
+  getWeeklyStops,
+  getUpcomingExceptions,
+  getSettings,
+  updateWeeklyStop,
+  upsertException,
+  deleteException,
+  setSettings,
+} from '../../lib/db';
+import type { WeeklyStop } from '../../lib/types';
+import { env } from 'cloudflare:workers';
+
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+const db = env.DB;
+const today = todayInCopenhagen();
+
+// Errors and submitted values survive a failed POST so nothing she typed is lost.
+let stopErrors: Record<number, Record<string, string>> = {};
+let exceptionErrors: Record<string, string> = {};
+let bannerErrors: Record<string, string> = {};
+let ferieErrors: Record<string, string> = {};
+let submittedFerie: Record<string, string> | null = null;
+let submittedStops: WeeklyStop[] | null = null;
+let submittedClosed: Record<number, boolean> | null = null;
+let submittedException: Record<string, string> = {};
+let submittedExceptionClosed = false;
+let submittedBanner: Record<string, string> | null = null;
+
+function str(data: FormData, key: string): string {
+  const value = data.get(key);
+  return typeof value === 'string' ? value : '';
+}
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const form = str(data, '_form');
+
+  if (form === 'weekly') {
+    const candidates: WeeklyStop[] = [];
+    const errors: Record<number, Record<string, string>> = {};
+    const checkboxes: Record<number, boolean> = {};
+
+    for (let w = 0; w < 7; w++) {
+      checkboxes[w] = data.get(`closed_${w}`) !== null;
+
+      const result = validateStop({
+        weekday: w,
+        closed: checkboxes[w],
+        location_name: str(data, `location_name_${w}`),
+        address: str(data, `address_${w}`),
+        map_url: str(data, `map_url_${w}`),
+        start_time: str(data, `start_time_${w}`),
+        end_time: str(data, `end_time_${w}`),
+        note: str(data, `note_${w}`),
+      });
+
+      if (result.ok) {
+        candidates.push(result.value);
+      } else {
+        errors[w] = result.errors;
+        // Keep what she typed so the re-render shows it back to her.
+        candidates.push({
+          weekday: w,
+          location_name: str(data, `location_name_${w}`) || null,
+          address: str(data, `address_${w}`) || null,
+          map_url: str(data, `map_url_${w}`) || null,
+          start_time: str(data, `start_time_${w}`) || null,
+          end_time: str(data, `end_time_${w}`) || null,
+          note: str(data, `note_${w}`) || null,
+        });
+      }
+    }
+
+    if (Object.keys(errors).length === 0) {
+      // All seven or none — a partial save would leave a confusing half-state.
+      for (const stop of candidates) await updateWeeklyStop(db, stop);
+      return Astro.redirect('/admin?gemt=ugeplan', 303);
+    }
+
+    stopErrors = errors;
+    submittedStops = candidates;
+    submittedClosed = checkboxes;
+  }
+
+  if (form === 'exception') {
+    submittedExceptionClosed = data.get('closed') !== null;
+
+    const result = validateException(
+      {
+        date: str(data, 'date'),
+        closed: submittedExceptionClosed,
+        location_name: str(data, 'location_name'),
+        address: str(data, 'address'),
+        map_url: str(data, 'map_url'),
+        start_time: str(data, 'start_time'),
+        end_time: str(data, 'end_time'),
+        note: str(data, 'note'),
+      },
+      today,
+    );
+
+    if (result.ok) {
+      await upsertException(db, result.value);
+      return Astro.redirect('/admin?gemt=undtagelse', 303);
+    }
+
+    exceptionErrors = result.errors;
+    for (const key of ['date', 'location_name', 'address', 'map_url', 'start_time', 'end_time', 'note']) {
+      submittedException[key] = str(data, key);
+    }
+  }
+
+  if (form === 'delete-exception') {
+    await deleteException(db, str(data, 'date'));
+    return Astro.redirect('/admin?gemt=slettet', 303);
+  }
+
+  if (form === 'ferie') {
+    const input = { fra: str(data, 'ferie_fra'), til: str(data, 'ferie_til'), text: str(data, 'ferie_text') };
+    const result = validateFerie(input, today);
+    if (result.ok) {
+      // The holiday and the banner announcing it are saved together.
+      await setSettings(db, result.value);
+      return Astro.redirect('/admin?gemt=ferie', 303);
+    }
+    ferieErrors = result.errors;
+    submittedFerie = { ferie_fra: input.fra, ferie_til: input.til, ferie_text: input.text };
+  }
+
+  if (form === 'delete-ferie') {
+    const current = await getSettings(db);
+    const clear: Record<string, string> = { ferie_fra: '', ferie_til: '' };
+    // Remove the banner too, but only if it is still the one the holiday set —
+    // never a message she has written since.
+    if (current.banner_until && current.banner_until === current.ferie_til) {
+      clear.banner_text = '';
+      clear.banner_until = '';
+    }
+    await setSettings(db, clear);
+    return Astro.redirect('/admin?gemt=ferie-slettet', 303);
+  }
+
+  if (form === 'banner') {
+    const result = validateBanner({ text: str(data, 'text'), until: str(data, 'until') }, today);
+    if (result.ok) {
+      await setSettings(db, result.value);
+      return Astro.redirect('/admin?gemt=besked', 303);
+    }
+    bannerErrors = result.errors;
+    // Same reason as the two forms above: show her own words back, not the
+    // stored ones she was in the middle of replacing.
+    submittedBanner = { text: str(data, 'text'), until: str(data, 'until') };
+  }
+}
+
+const stops = submittedStops ?? (await getWeeklyStops(db));
+const exceptions = await getUpcomingExceptions(db, today);
+const settings = await getSettings(db);
+const ferie = resolveFerie(today, settings);
+
+const saved = Astro.url.searchParams.get('gemt');
+const savedMessages: Record<string, string> = {
+  ugeplan: 'Ugeplanen er gemt.',
+  undtagelse: 'Undtagelsen er gemt.',
+  slettet: 'Undtagelsen er slettet.',
+  besked: 'Beskeden er gemt.',
+  ferie: 'Ferien er gemt, og beskeden på forsiden er sat.',
+  'ferie-slettet': 'Ferien er slettet.',
+};
+
+// The admin screen borrows the palette and the type from the rest of the site
+// and nothing else: no chequer, no ticket edges, no sign-sized headlines. It is
+// a form, and it is used by one person who needs it to be plain.
+const knap =
+  'self-start border-2 border-tekst bg-orange px-6 py-4 text-lg font-black tracking-[0.06em] text-tekst uppercase hover:bg-orange-dyb hover:text-white active:translate-y-[1px]';
+const overskrift = 'border-b-4 border-orange pb-1.5 text-2xl font-black tracking-tight uppercase';
+---
+
+<Base title="Rediger" ringebar={false} bookknap={false}>
+  <div class="mx-auto w-full max-w-4xl px-4 pt-8 pb-14 sm:px-6 sm:pt-10 sm:pb-16">
+    <h1 class="font-display text-h1 uppercase">Rediger hjemmesiden</h1>
+    <p class="mt-2 tabular-nums text-sm text-daempet">Logget ind som {Astro.locals.accessEmail}</p>
+
+    {
+      saved && savedMessages[saved] && (
+        <p class="mt-6 flex items-center gap-3 border-2 border-tekst bg-orange px-4 py-4 text-lg font-bold text-tekst">
+          <Ikon navn="flueben" class="h-6 w-6 shrink-0" />
+          {savedMessages[saved]}
+        </p>
+      )
+    }
+
+    <!-- Weekly pattern -->
+    <section class="mt-12">
+      <h2 class={overskrift}>Ugeplan</h2>
+      <p class="mt-3 max-w-[52ch] text-base text-daempet">
+        Sådan ser en almindelig uge ud. Den gentager sig selv, indtil du ændrer den.
+      </p>
+
+      <form method="post" class="mt-6 flex flex-col gap-5">
+        <input type="hidden" name="_form" value="weekly" />
+        {stops.map((stop) => <StopRow stop={stop} errors={stopErrors[stop.weekday]} closed={submittedClosed?.[stop.weekday]} />)}
+        <button type="submit" class={knap}>Gem ugeplan</button>
+      </form>
+    </section>
+
+    <!-- Exceptions -->
+    <section class="mt-16">
+      <h2 class={overskrift}>Undtagelser</h2>
+      <p class="mt-3 max-w-[52ch] text-base text-daempet">
+        Enkelte dage der er anderledes end ugeplanen — f.eks. en lukkedag eller et andet sted.
+      </p>
+
+      {
+        exceptions.length > 0 && (
+          <ul class="mt-6 flex flex-col gap-3">
+            {exceptions.map((ex) => (
+              <li class="flex flex-wrap items-center justify-between gap-3 border-2 border-tekst bg-papir px-4 py-3">
+                <div>
+                  <p class="text-lg font-black uppercase">
+                    <span>{DANISH_WEEKDAYS[weekdayIndex(ex.date)]}</span>{' '}
+                    <span class="tabular-nums text-base font-medium tracking-tight normal-case">
+                      {formatDanishDate(ex.date)}
+                    </span>
+                  </p>
+                  <p class="mt-0.5 text-base text-daempet">
+                    {ex.is_closed === 1 ? 'Lukket' : `${ex.location_name} kl. ${ex.start_time}–${ex.end_time}`}
+                    {ex.note && ` · ${ex.note}`}
+                  </p>
+                </div>
+                <form method="post" onsubmit="return confirm('Er du sikker på, at du vil slette denne undtagelse?')">
+                  <input type="hidden" name="_form" value="delete-exception" />
+                  <input type="hidden" name="date" value={ex.date} />
+                  <button
+                    type="submit"
+                    class="min-h-12 border-2 border-tekst bg-papir px-4 py-2 text-base font-bold text-fare uppercase hover:bg-fare hover:text-white"
+                  >
+                    Slet
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <form method="post" class="mt-6 border-2 border-tekst bg-papir p-4 sm:p-5">
+        <input type="hidden" name="_form" value="exception" />
+        <h3 class="text-lg font-black uppercase">Tilføj undtagelse</h3>
+
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <Field label="Dato" name="date" type="date" value={submittedException.date} error={exceptionErrors.date} />
+        </div>
+
+        <label
+          class="mt-4 flex min-h-12 items-center gap-3 border-2 border-tekst bg-creme px-4 py-3 text-base font-bold"
+        >
+          <input type="checkbox" name="closed" checked={submittedExceptionClosed} class="h-6 w-6 shrink-0 accent-fare" />
+          Lukket denne dag
+        </label>
+
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <Field label="Sted" name="location_name" value={submittedException.location_name} error={exceptionErrors.location_name} />
+          <Field label="Adresse" name="address" value={submittedException.address} />
+          <Field label="Fra kl." name="start_time" value={submittedException.start_time} error={exceptionErrors.start_time} placeholder="11:00" />
+          <Field label="Til kl." name="end_time" value={submittedException.end_time} error={exceptionErrors.end_time} placeholder="14:00" />
+          <Field label="Link til kort (valgfrit)" name="map_url" value={submittedException.map_url} />
+          <Field label="Bemærkning (valgfrit)" name="note" value={submittedException.note} />
+        </div>
+
+        <button type="submit" class={`mt-6 ${knap}`}>Gem undtagelse</button>
+      </form>
+    </section>
+
+    <!-- Holiday -->
+    <section class="mt-16">
+      <h2 class={overskrift}>Ferie</h2>
+      <p class="mt-3 max-w-[52ch] text-base text-daempet">
+        Alle dage i ferien vises som lukket på forsiden, og der kommer en besked øverst. En
+        undtagelse på en enkelt dag går stadig forud for ferien.
+      </p>
+
+      {
+        ferie && (
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-2 border-tekst bg-flade p-4 sm:p-5">
+            <p class="text-lg font-bold">
+              Ferie: {ferieBannerTekst(ferie.fra, ferie.til).replace(/^Vi holder (ferie|lukket) /, '')}
+            </p>
+            <form method="post" onsubmit="return confirm('Er du sikker på, at du vil slette ferien?')">
+              <input type="hidden" name="_form" value="delete-ferie" />
+              <button
+                type="submit"
+                class="min-h-12 border-2 border-tekst bg-papir px-4 py-2 text-base font-bold hover:bg-fare hover:text-white"
+              >
+                Slet ferie
+              </button>
+            </form>
+          </div>
+        )
+      }
+
+      <form method="post" data-ferie class="mt-6 border-2 border-tekst bg-papir p-4 sm:p-5">
+        <input type="hidden" name="_form" value="ferie" />
+        <h3 class="text-lg font-black uppercase">{ferie ? 'Skift ferie' : 'Tilføj ferie'}</h3>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <Field label="Første feriedag" name="ferie_fra" type="date" value={submittedFerie?.ferie_fra ?? ferie?.fra} error={ferieErrors.fra} />
+          <Field label="Sidste feriedag" name="ferie_til" type="date" value={submittedFerie?.ferie_til ?? ferie?.til} error={ferieErrors.til} />
+        </div>
+        <div class="mt-4">
+          <Field
+            label="Besked på forsiden"
+            name="ferie_text"
+            value={submittedFerie?.ferie_text ?? (ferie && settings.banner_until === ferie.til ? settings.banner_text : '')}
+            error={ferieErrors.text}
+            placeholder="Udfyldes ud fra datoerne, f.eks. Vi holder ferie 14.–27. juli"
+          />
+        </div>
+        <p class="mt-3 text-base text-daempet">
+          Beskeden udfyldes af sig selv, når du vælger datoerne. Du kan rette den, som du vil.
+        </p>
+        <button type="submit" class={`mt-6 ${knap}`}>Gem ferie</button>
+      </form>
+    </section>
+
+    <!-- Banner -->
+    <section class="mt-16 mb-4">
+      <h2 class={overskrift}>Besked på forsiden</h2>
+      <p class="mt-3 max-w-[52ch] text-base text-daempet">
+        En kort besked øverst på forsiden. Den forsvinder af sig selv efter datoen.
+      </p>
+
+      <form method="post" class="mt-6 border-2 border-tekst bg-papir p-4 sm:p-5">
+        <input type="hidden" name="_form" value="banner" />
+        <div class="grid gap-4">
+          <Field label="Besked" name="text" value={submittedBanner?.text ?? settings.banner_text} error={bannerErrors.text} placeholder="F.eks. Lukket uge 29 — ferie" />
+          <Field label="Vis til og med" name="until" type="date" value={submittedBanner?.until ?? settings.banner_until} error={bannerErrors.until} />
+        </div>
+        <p class="mt-3 text-base text-daempet">Slet teksten for at fjerne beskeden.</p>
+        <button type="submit" class={`mt-6 ${knap}`}>Gem besked</button>
+      </form>
+    </section>
+  </div>
+</Base>
+
+<script>
+  // Pre-fill the holiday banner from the two dates, until she types in it
+  // herself. Without JS the field is simply left empty and the server fills it.
+  import { ferieBannerTekst } from '../../lib/ferie';
+
+  const form = document.querySelector<HTMLFormElement>('form[data-ferie]');
+  if (form) {
+    const fra = form.querySelector<HTMLInputElement>('[name="ferie_fra"]')!;
+    const til = form.querySelector<HTMLInputElement>('[name="ferie_til"]')!;
+    const tekst = form.querySelector<HTMLInputElement>('[name="ferie_text"]')!;
+    let egenTekst = tekst.value.trim() !== '';
+    tekst.addEventListener('input', () => {
+      egenTekst = tekst.value.trim() !== '';
+    });
+    const udfyld = () => {
+      if (egenTekst || !fra.value || !til.value || til.value < fra.value) return;
+      tekst.value = ferieBannerTekst(fra.value, til.value);
+    };
+    fra.addEventListener('change', udfyld);
+    til.addEventListener('change', udfyld);
+  }
+</script>

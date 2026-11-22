@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Ringebar from '../components/Ringebar.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  ringebar?: boolean;
+  bookknap?: boolean;
+}
+
+const {
+  title,
+  description = 'Chicks on Wheels — foodtruck og pølsevogn.',
+  ringebar = true,
+  bookknap = true,
+} = Astro.props;
+---
+
+<html lang="da">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title} — Chicks on Wheels</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#1f0e08" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Both faces are used in the first screenful, so they are fetched
+         alongside the HTML instead of after the stylesheet has parsed. There is no
+         third font. -->
+    <link
+      rel="preload"
+      href="/fonts/alfa-slab-one-latin-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/source-sans-3-latin-wght.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+  <body
+    class:list={[
+      'flex min-h-screen flex-col bg-creme font-sans text-tekst antialiased',
+      // room for the fixed call bar: 3rem bar + safe area, phones only
+      ringebar && 'pb-[calc(3rem+env(safe-area-inset-bottom))] sm:pb-0',
+    ]}
+  >
+    <a
+      href="#indhold"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:bg-mork focus:px-4 focus:py-3 focus:text-base focus:font-bold focus:text-mork-tekst focus-visible:outline-fokus"
+    >
+      Gå til indhold
+    </a>
+    <Nav bookknap={bookknap} />
+    <main id="indhold" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+    {ringebar && <Ringebar />}
+  </body>
+</html>

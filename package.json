@@ -1,0 +1,30 @@
+{
+  "name": "chicks-on-wheels",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:worker": "astro build && vitest run -c vitest.workers.config.ts",
+    "test:all": "vitest run && pnpm test:worker",
+    "deploy": "astro build && wrangler d1 migrations apply chicks_on_wheels --remote && wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.2.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.4",
+    "jose": "^6.2.9",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@cloudflare/vitest-pool-workers": "^0.22.0",
+    "@types/node": "^26.2.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.125.0"
+  },
+  "packageManager": "pnpm@11.5.1+sha512.93f7b57422ea7068257235b4c16eb60762eb68e1dc23723199cc739043ea9be2c4143274a399d8c6defa2b1176226d9ca1c4b63482d6200c1a8fbaa78c1d1485"
+}

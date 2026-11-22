@@ -1,0 +1,36 @@
+---
+import HoeneFigur from './HoeneFigur.astro';
+
+interface Props {
+  /** Utility classes for the size. The drawing keeps its own proportions. */
+  class?: string;
+  /** Set when the hen carries meaning on her own; otherwise she is decoration. */
+  titel?: string;
+  /** Body colour. */
+  krop?: string;
+  /** Comb, beak and wattle. */
+  kam?: string;
+  /** Keyline. Swap it on dark backgrounds or she disappears into them. */
+  streg?: string;
+}
+
+const {
+  class: klasse = '',
+  titel,
+  krop = 'var(--color-tomat)',
+  kam = 'var(--color-gul)',
+  streg = 'var(--color-sort)',
+} = Astro.props;
+---
+
+<svg
+  viewBox="0 0 120 120"
+  class={klasse}
+  style={`--krop:${krop};--kam:${kam};--streg:${streg}`}
+  role={titel ? 'img' : undefined}
+  aria-hidden={titel ? undefined : 'true'}
+  focusable="false"
+>
+  {titel && <title>{titel}</title>}
+  <HoeneFigur />
+</svg>

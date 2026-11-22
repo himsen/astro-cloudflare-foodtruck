@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import Ikon from '../components/art/Ikon.astro';
+import { INDEHAVER, VIRKSOMHED } from '../lib/kontakt';
+
+export const prerender = true;
+
+// Only facts we know: the owner, the company, the two vehicles, food made on
+// site, sausages and pork from the local butcher (his pølsevogn flyer), weekly
+// stops around Fredericia. No invented history — the owner adds his own story.
+const fornavn = INDEHAVER.split(' ')[0];
+
+const saerligt = [
+  {
+    ikon: 'kylling',
+    titel: 'Lavet på stedet',
+    tekst: 'Kyllingerne steges på spyd i vognen, så de er varme og sprøde, når du får dem.',
+  },
+  {
+    ikon: 'vogn',
+    titel: 'Vi kommer til dig',
+    tekst: 'Hver uge står vi på faste pladser i og omkring Fredericia. Til fester og arrangementer kommer vi i hele Danmark – fortæl os, hvor I holder festen.',
+  },
+  {
+    ikon: 'fest',
+    titel: 'Lokalt og ærligt',
+    tekst: 'I pølsevognen laver vi flæskestegssandwich med kød fra vores lokale slagter.',
+  },
+] as const;
+
+const kortKlasse =
+  'rounded-2xl border border-kant bg-kort shadow-[0_6px_18px_-10px_rgb(42_20_12/0.3)]';
+---
+
+<Base title="Om os" description={`Mød ${INDEHAVER} – manden bag Chicks on Wheels og Tonny's pølsevogn i Fredericia.`}>
+  {/* Meet the owner: words left, his portrait right. */}
+  <section class="mx-auto w-full max-w-6xl px-4 pt-10 pb-12 sm:px-6 lg:pt-14 lg:pb-16" aria-labelledby="om-os">
+    <div class="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:items-center md:gap-14">
+      <div>
+        <p class="text-etiket font-bold text-orange-dyb uppercase">Om Chicks on Wheels</p>
+        <h1 id="om-os" class="mt-2 text-h1 leading-[1.02]">Mød {fornavn}</h1>
+        <p class="mt-5 max-w-[46ch] text-lg leading-relaxed">
+          Bag Chicks on Wheels står {INDEHAVER}. Til hverdag kører han kyllingevognen rundt i og
+          omkring Fredericia og står selv i lugen. Til fester og arrangementer kommer han med både
+          foodtrucken og sin klassiske pølsevogn, “Tonny’s” – i hele Danmark.
+        </p>
+        <p class="mt-3 max-w-[46ch] text-lg leading-relaxed">
+          Vi kommer med foodtrucken og laver maden på stedet. I løbet af ugen står vi på faste
+          pladser — <a href="/#plan" class="font-semibold text-orange-dyb underline decoration-2 underline-offset-4"
+            >se ugeplanen på forsiden</a
+          > — og du kan bestille i forvejen på telefonen.
+        </p>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-xs md:max-w-none">
+        <img
+          src="/photos/tonny-portraet.webp"
+          width="403"
+          height="537"
+          alt={`${INDEHAVER}, indehaver af Chicks on Wheels`}
+          class="aspect-[3/4] w-full rounded-2xl object-cover shadow-[0_10px_30px_-12px_rgb(42_20_12/0.55)]"
+        />
+        {/* A small second photo of him at work, overlapping the portrait's corner. */}
+        <img
+          src="/photos/tonny-luge-335.webp"
+          width="335"
+          height="335"
+          alt={`${fornavn} i lugen på foodtrucken`}
+          class="absolute -bottom-6 -left-6 hidden w-36 rounded-xl border-[5px] border-creme object-cover shadow-[0_6px_18px_-6px_rgb(42_20_12/0.45)] sm:block lg:-left-10 lg:w-44"
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* What we care about. */}
+  <section class="bg-flade" aria-labelledby="saerligt-titel">
+    <div class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
+      <h2 id="saerligt-titel" class="text-center text-h2">Sådan gør vi det</h2>
+      <ul class="mt-8 grid gap-4 md:grid-cols-3 md:gap-6">
+        {
+          saerligt.map((s) => (
+            <li class={`p-6 ${kortKlasse}`}>
+              <span class="flex h-12 w-12 items-center justify-center rounded-full bg-orange text-tekst" aria-hidden="true">
+                <Ikon navn={s.ikon} class="h-6 w-6" />
+              </span>
+              <h3 class="mt-4 text-h3">{s.titel}</h3>
+              <p class="mt-2 text-base leading-relaxed">{s.tekst}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* The two vehicles, side by side. */}
+  <section class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:py-16" aria-labelledby="vogne-titel">
+    <h2 id="vogne-titel" class="text-center text-h2">Vores to vogne</h2>
+    <div class="mt-8 grid gap-6 md:grid-cols-2">
+      <article class={`overflow-hidden ${kortKlasse}`}>
+        <img
+          src="/photos/truck-side-1200.webp"
+          width="1200"
+          height="900"
+          loading="lazy"
+          alt="Chicks on Wheels' brune foodtruck med pin-up-maskotten på siden"
+          class="h-56 w-full object-cover sm:h-64"
+        />
+        <div class="p-6">
+          <h3 class="text-h3">Chicks on Wheels</h3>
+          <p class="mt-2 text-base leading-relaxed">
+            Foodtrucken med spydstegt BBQ-kylling, pommes frites og tilbehør – på faste pladser hver
+            uge og til jeres arrangement.
+          </p>
+        </div>
+      </article>
+      <article class={`overflow-hidden ${kortKlasse}`}>
+        <img
+          src="/photos/tonnys-800.webp"
+          width="800"
+          height="600"
+          loading="lazy"
+          alt="Tonny's røde pølsevogn med lugerne åbne"
+          class="h-56 w-full object-cover object-[50%_75%] sm:h-64"
+        />
+        <div class="p-6">
+          <h3 class="text-h3">Tonny’s pølsevogn</h3>
+          <p class="mt-2 text-base leading-relaxed">
+            Vi kommer også ud til private fester og firmaarrangementer, med foodtrucken eller med vores
+            klassiske pølsevogn.
+          </p>
+        </div>
+      </article>
+    </div>
+    <p class="mt-6 text-center text-sm text-daempet">
+      Chicks on Wheels drives af {VIRKSOMHED} i Fredericia.
+    </p>
+  </section>
+
+  {/* Close: two ways onward. */}
+  <section data-mork class="bg-mork text-mork-tekst" aria-labelledby="videre-titel">
+    <div class="mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-4 py-12 sm:px-6 md:flex-row md:items-center md:justify-between">
+      <h2 id="videre-titel" class="text-h2">Kom forbi – eller book os</h2>
+      <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+        <a
+          href="/#plan"
+          class="flex min-h-12 items-center justify-center gap-2.5 rounded-lg border-2 border-mork-tekst px-6 py-3 text-base font-bold text-mork-tekst hover:bg-mork-tekst hover:text-tekst"
+        >
+          <Ikon navn="kort" class="h-5 w-5" />
+          Find os
+        </a>
+        <a
+          href="/book"
+          class="flex min-h-12 items-center justify-center gap-2.5 rounded-lg bg-orange px-6 py-3 text-base font-bold text-tekst hover:bg-orange-dyb hover:text-white"
+        >
+          Book os
+          <Ikon navn="pil" class="h-5 w-5" />
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

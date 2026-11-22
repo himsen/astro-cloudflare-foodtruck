@@ -1,0 +1,124 @@
+---
+import { NAV_LINKS } from '../lib/navigation';
+
+// No phone number in the top bar (user's call): phones get the call bar,
+// everyone else /book and /kontakt.
+
+// Prerendered pages resolve to a trailing slash ('/ydelser/'), server-rendered
+// ones do not. Normalise both sides or the current page is never marked.
+const normalise = (p: string) => p.replace(/\/+$/, '') || '/';
+const path = normalise(Astro.url.pathname);
+
+interface Props {
+  bookknap?: boolean;
+}
+const { bookknap = true } = Astro.props;
+
+const links = NAV_LINKS;
+---
+
+<header data-mork class="bg-mork text-mork-tekst">
+  <div class="mx-auto w-full max-w-6xl px-4 sm:px-6">
+    <!-- The open menu is shown by CSS (:has on the details), so the one <nav> is
+         both the desktop row and the stacked phone panel, with no JS. DOM order
+         is logo, Book, toggle, links, so Tab follows what is on screen. Widths at
+         320 (288 available): logo h-9 = 149 + Book 72 + toggle 44 + 2 gaps of 8 = 281. -->
+    <div class="group flex flex-wrap items-center gap-x-2 py-3 lg:gap-x-6">
+      <a href="/" aria-label="Chicks on Wheels — forside" class="flex shrink-0 py-1">
+        <img
+          src="/logo.webp"
+          srcset="/logo.webp 1x, /logo@2x.webp 2x"
+          alt="Chicks on Wheels – Danish Quality"
+          width="220"
+          height="53"
+          class="h-9 w-auto min-[360px]:h-11 lg:h-12 xl:h-14"
+        />
+      </a>
+
+      {
+        bookknap && (
+          <>
+            <a
+              href="/book"
+              aria-label="Book os"
+              aria-current={path === '/book' ? 'page' : undefined}
+              class="ml-auto flex min-h-12 items-center justify-center rounded-lg bg-orange px-4 py-3 text-base font-bold text-tekst hover:bg-orange-dyb hover:text-white lg:hidden"
+              >Book</a
+            >
+            <details data-navmenu class="group/menu lg:hidden">
+              <summary
+                aria-label="Hovedmenu"
+                class="flex size-11 cursor-pointer list-none items-center justify-center [&::-webkit-details-marker]:hidden"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  class="h-6 w-6 group-open/menu:hidden"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                  focusable="false"><path d="M4 6h16M4 12h16M4 18h16" /></svg
+                >
+                <svg
+                  viewBox="0 0 24 24"
+                  class="hidden h-6 w-6 group-open/menu:block"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                  focusable="false"><path d="M6 6l12 12M18 6L6 18" /></svg
+                >
+              </summary>
+            </details>
+          </>
+        )
+      }
+
+      <nav
+        aria-label="Hovedmenu"
+        class:list={[
+          '-mx-2',
+          bookknap
+            ? 'hidden basis-full flex-col group-has-[details[open]]:flex lg:flex lg:flex-1 lg:flex-row lg:flex-wrap lg:items-center'
+            : 'flex basis-full flex-wrap items-center sm:flex-1 sm:basis-0',
+        ]}
+      >
+        {
+          links.map((link) => {
+            // Jump links to a section of "/" are never current.
+            const current = !link.href.startsWith('/#') && path === normalise(link.href);
+            return (
+              <a
+                href={link.href}
+                aria-current={current ? 'page' : undefined}
+                class:list={[
+                  'inline-flex min-h-12 items-center px-3 text-sm font-bold tracking-[0.12em] uppercase lg:px-2 lg:tracking-[0.06em] xl:px-3 xl:tracking-[0.12em] underline-offset-8 hover:underline',
+                  current
+                    ? 'underline decoration-orange decoration-4'
+                    : bookknap
+                      ? 'text-mork-tekst'
+                      : 'text-mork-daempet hover:text-mork-tekst',
+                ]}
+              >
+                {link.label}
+              </a>
+            );
+          })
+        }
+        {
+          bookknap && (
+            <a
+              href="/book"
+              aria-current={path === '/book' ? 'page' : undefined}
+              class="mr-2 ml-auto hidden min-h-12 items-center justify-center rounded-lg bg-orange px-5 py-3 text-base font-bold text-tekst hover:bg-orange-dyb hover:text-white lg:flex"
+            >
+              Book os
+            </a>
+          )
+        }
+      </nav>
+    </div>
+  </div>
+</header>

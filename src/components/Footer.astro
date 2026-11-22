@@ -1,0 +1,49 @@
+---
+import { VIRKSOMHED, CVR, ADRESSE, POSTBY, SMILEY_URL } from '../lib/kontakt';
+import Ikon from './art/Ikon.astro';
+import { NAV_LINKS } from '../lib/navigation';
+
+const year = new Date().getFullYear();
+const link =
+  'inline-flex min-h-12 items-center px-2 text-sm font-bold tracking-[0.12em] uppercase hover:text-mork-tekst';
+---
+
+<footer data-mork class="bg-mork text-mork-daempet">
+  <div
+    class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-8 gap-y-6 px-4 py-8 sm:px-6"
+  >
+    <p class="font-display text-xl text-mork-tekst">Chicks on Wheels</p>
+
+    <nav aria-label="Bundmenu" class="-mx-2 flex flex-wrap">
+      {NAV_LINKS.map((l) => <a href={l.href} class={link}>{l.label}</a>)}
+      <a href="/book" class={link}>Book os</a>
+    </nav>
+
+    {
+      SMILEY_URL && (
+        <a
+          href={SMILEY_URL}
+          rel="noopener noreferrer"
+          target="_blank"
+          class="flex min-h-12 items-center gap-3 rounded-full bg-white/10 py-1.5 pr-5 pl-1.5 text-mork-tekst hover:bg-white/15"
+        >
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-smiley text-white" aria-hidden="true">
+            <Ikon navn="smiley" class="h-6 w-6" />
+          </span>
+          <span class="text-sm leading-tight">
+            <span class="block font-bold">Fødevarekontrol</span>
+            <span class="block text-mork-daempet">Se vores smiley-rapport</span>
+          </span>
+        </a>
+      )
+    }
+
+    <!-- E-handelsloven wants the registered name, address and CVR-nummer on
+         the site, not only on /kontakt — the footer is on every page. -->
+    <div class="text-sm leading-relaxed tabular-nums">
+      <p>{VIRKSOMHED}{CVR && ` · CVR-nr. ${CVR}`}</p>
+      <p>{ADRESSE} · {POSTBY}</p>
+      <p class="mt-1.5">© {year} Chicks on Wheels</p>
+    </div>
+  </div>
+</footer>

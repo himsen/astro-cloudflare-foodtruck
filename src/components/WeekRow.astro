@@ -1,0 +1,52 @@
+---
+import type { DayEntry } from '../lib/types';
+
+/**
+ * One of the six days after today, as a calendar tile.
+ *
+ * The weekday is abbreviated to three letters in big slab type; the full
+ * weekday and date stay in the markup for screen readers. On the kort face:
+ * orange-dyb 5.4:1, daempet 8:1, fare 5.5:1. A closed day sits back on flade.
+ */
+interface Props {
+  day: DayEntry;
+}
+
+const { day } = Astro.props;
+const kort = day.weekdayName.slice(0, 3);
+const dagtal = day.displayDate.split(' ')[0]; // '24. august' -> '24.'
+---
+
+<li
+  class:list={[
+    'flex flex-col rounded-xl border border-kant p-4',
+    day.isClosed ? 'bg-flade' : 'bg-kort shadow-[0_6px_18px_-10px_rgb(42_20_12/0.3)]',
+  ]}
+>
+  <p class="flex items-baseline gap-2">
+    <span class="sr-only">{day.weekdayName} {day.displayDate}</span>
+    <span
+      aria-hidden="true"
+      class:list={['font-display text-2xl uppercase', day.isClosed ? 'text-daempet' : 'text-orange-dyb']}
+      >{kort}</span
+    >
+    <span aria-hidden="true" class="text-sm text-daempet">{dagtal}</span>
+  </p>
+
+  {
+    day.isClosed ? (
+      <p class="mt-2 text-base font-semibold text-fare">Lukket</p>
+    ) : (
+      <>
+        <p class="skiltbrud mt-2 text-lg leading-snug font-bold">{day.locationName}</p>
+        {day.startTime && day.endTime && (
+          <p class="mt-1 text-base tabular-nums text-daempet">
+            {day.startTime}–{day.endTime}
+          </p>
+        )}
+      </>
+    )
+  }
+
+  {day.note && <p class="mt-2 text-sm font-medium text-daempet">{day.note}</p>}
+</li>

@@ -1,0 +1,121 @@
+---
+/**
+ * The mascot, redrawn from the truck.
+ *
+ * She is painted on the side and the back door of the real vehicle: a 1950s
+ * carhop on roller skates, blonde flip, powder-blue cap and dress, a Dannebrog
+ * hanging from her belt, a roast chicken on a tray. Sources:
+ * raw_pictures/fb10.jpg (door, clearest) and fb1.jpg (side).
+ *
+ * A reduction, not a copy — the same character in this site's flat,
+ * heavy-keyline style. She keeps her own colours, because those are the ones
+ * painted on the van.
+ *
+ * NOT CURRENTLY USED ANYWHERE. Kept as the full figure, at full size, because
+ * she is a faithful record of the character on the vehicle and the drawing
+ * should not have to be made twice. Cropping her to a badge for the header was
+ * tried and looked bad; the hen is the mark.
+ *
+ * Arms and legs are drawn as two stacked strokes — a black one for the keyline,
+ * a skin-coloured one over it — rather than as outlined shapes. Far fewer path
+ * points, and the joints stay round at every size.
+ */
+interface Props {
+  class?: string;
+  titel?: string;
+  /** Keyline colour. Bone on the black bands, where black would disappear. */
+  streg?: string;
+}
+
+const { class: klasse = '', titel, streg = 'var(--color-sort)' } = Astro.props;
+
+const arm_hoejre = 'M130 116 L152 98 L166 84';
+const arm_venstre = 'M74 116 L64 140 L72 158';
+const ben_venstre = 'M88 200 L78 264';
+const ben_hoejre = 'M116 200 L126 264';
+---
+
+<svg
+  viewBox="0 0 200 320"
+  class={klasse}
+  style={`--streg:${streg}`}
+  role={titel ? 'img' : undefined}
+  aria-hidden={titel ? undefined : 'true'}
+  focusable="false"
+>
+  {titel && <title>{titel}</title>}
+  <g stroke-linejoin="round" stroke-linecap="round">
+    {/* Limbs: keyline stroke first, skin stroke over it */}
+    <g fill="none" stroke="var(--streg, #111111)" stroke-width="26">
+      <path d={arm_hoejre}></path>
+      <path d={arm_venstre}></path>
+    </g>
+    <g fill="none" stroke="var(--color-hud, #f2d3b6)" stroke-width="16">
+      <path d={arm_hoejre}></path>
+      <path d={arm_venstre}></path>
+    </g>
+
+    <g fill="none" stroke="var(--streg, #111111)" stroke-width="30">
+      <path d={ben_venstre}></path>
+      <path d={ben_hoejre}></path>
+    </g>
+    <g fill="none" stroke="var(--color-hud, #f2d3b6)" stroke-width="20">
+      <path d={ben_venstre}></path>
+      <path d={ben_hoejre}></path>
+    </g>
+
+    <g fill="none" stroke="var(--streg, #111111)" stroke-width="5">
+      <!-- Skates -->
+      <path d="M62 258h30v20h6a5 5 0 0 1 5 5v5H62z" fill="var(--color-himmel, #93c4dd)"></path>
+      <path d="M112 258h30v30h-35v-5a5 5 0 0 1 5-5h6z" fill="var(--color-himmel, #93c4dd)"></path>
+      <circle cx="68" cy="296" r="8" fill="var(--color-brun, #7c4a37)"></circle>
+      <circle cx="88" cy="296" r="8" fill="var(--color-brun, #7c4a37)"></circle>
+      <circle cx="118" cy="296" r="8" fill="var(--color-brun, #7c4a37)"></circle>
+      <circle cx="138" cy="296" r="8" fill="var(--color-brun, #7c4a37)"></circle>
+
+      <!-- Shorts, showing below the hem -->
+      <path d="M74 176h56v34H74z" fill="var(--color-sort, #111111)"></path>
+
+      <!-- Dress -->
+      <path d="M76 106h50l12 84H64z" fill="var(--color-himmel, #93c4dd)"></path>
+      <path d="M70 108c-5 7-7 15-6 23l17 2 4-25z" fill="var(--color-himmel, #93c4dd)"></path>
+      <path d="M132 108c5 7 7 15 6 23l-17 2-4-25z" fill="var(--color-himmel, #93c4dd)"></path>
+      <path d="M68 148h68v13H68z" fill="var(--color-brun, #7c4a37)"></path>
+
+      <!-- Dannebrog on the hip: the reason she reads as Danish and not as an
+           American diner sticker, so it is drawn at full strength. -->
+      <path d="M112 161h30v44h-30z" fill="var(--color-tomat, #e8341f)"></path>
+      <path d="M123 161v44M112 179h30" stroke="var(--color-papir, #ffffff)" stroke-width="7"></path>
+      <path d="M112 161h30v44h-30z"></path>
+
+      <!-- Hand on the tray, and the tray itself -->
+      <circle cx="167" cy="83" r="11" fill="var(--color-hud, #f2d3b6)"></circle>
+      <ellipse cx="164" cy="70" rx="30" ry="8" fill="var(--color-papir, #ffffff)"></ellipse>
+      <path d="M146 66c3-12 10-18 18-18s15 6 18 18z" fill="var(--color-gul, #ffc526)"></path>
+      <path d="M152 54l-8-7M176 54l8-7"></path>
+      <path d="M164 66c-6-2-9-7-8-12" stroke-width="4"></path>
+
+      <!-- Hand on the hip -->
+      <circle cx="74" cy="160" r="10" fill="var(--color-hud, #f2d3b6)"></circle>
+
+      <!-- Head -->
+      <path d="M76 58c0-19 11-31 26-31s26 12 26 31v8c0 19-11 29-26 29S76 84 76 66z" fill="var(--color-hud, #f2d3b6)"></path>
+
+      <!-- Hair: crown, then a flip either side -->
+      <path
+        d="M74 64c-7-25 3-44 22-49 14-4 30 0 38 9 7 9 9 21 5 32-3-11-9-18-19-21-6 8-19 12-31 10 4 8 1 16-5 21z"
+        fill="var(--color-gul, #ffc526)"></path>
+      <path d="M74 62c-9 11-10 25-3 34 9-5 13-15 11-26z" fill="var(--color-gul, #ffc526)"></path>
+      <path d="M130 62c9 11 10 25 3 34-9-5-13-15-11-26z" fill="var(--color-gul, #ffc526)"></path>
+
+      <!-- Cap, sitting on the hair rather than hovering over it -->
+      <path d="M94 33c2-11 10-18 21-18h13a5 5 0 0 1 5 5v11c0 5-4 8-9 8H96z" fill="var(--color-himmel, #93c4dd)"></path>
+      <path d="M90 40h44" stroke-width="4"></path>
+
+      <!-- Face -->
+      <circle cx="94" cy="62" r="3.5" fill="var(--color-sort, #111111)"></circle>
+      <circle cx="115" cy="62" r="3.5" fill="var(--color-sort, #111111)"></circle>
+      <path d="M94 78c7 7 16 7 22 0" fill="none"></path>
+    </g>
+  </g>
+</svg>

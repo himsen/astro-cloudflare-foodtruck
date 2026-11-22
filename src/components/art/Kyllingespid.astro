@@ -1,0 +1,55 @@
+---
+/**
+ * Chickens on the spit, from raw_pictures/fb3.jpg — the rotisserie stacked with
+ * birds, which is the most appetising thing in the whole photo set and the
+ * thing the business is named after.
+ */
+interface Props {
+  class?: string;
+  titel?: string;
+}
+
+const { class: klasse = '', titel } = Astro.props;
+
+const kyllinger = [72, 145, 218];
+---
+
+<svg
+  viewBox="0 0 290 150"
+  class={klasse}
+  role={titel ? 'img' : undefined}
+  aria-hidden={titel ? undefined : 'true'}
+  focusable="false"
+>
+  {titel && <title>{titel}</title>}
+  <g
+    fill="none"
+    stroke="var(--color-sort, #111111)"
+    stroke-width="5"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  >
+    <!-- The spit, behind the birds, poking out at both ends -->
+    <path d="M12 74h266"></path>
+    <path d="M12 62v24M278 62v24"></path>
+
+    {
+      kyllinger.map((x) => (
+        <g transform={`translate(${x} 76)`}>
+          {/* body */}
+          <ellipse cx="0" cy="0" rx="34" ry="23" fill="var(--color-gul, #ffc526)" />
+          {/* wing tip, swept back along the spit */}
+          <path d="M-30 -6c-9-3-15-9-16-16l14 3z" fill="var(--color-gul, #ffc526)" />
+          {/* the two legs, tied and pointing down the spit */}
+          <path d="M18 14c11 2 17 8 18 17l-12 3c-1-6-6-11-13-12z" fill="var(--color-gul, #ffc526)" />
+          <path d="M4 19c9 4 14 11 14 19l-12 1c0-7-3-12-9-15z" fill="var(--color-gul, #ffc526)" />
+          {/* crisped skin, as marks off the grill rather than a solid cap */}
+          <path d="M-19 -10c11-5 23-5 33 0M-15 0c11-4 21-4 29 0" stroke="var(--color-brun, #7c4a37)" stroke-width="4" />
+        </g>
+      ))
+    }
+
+    <!-- Crank handle -->
+    <path d="M278 74h8v16h-14"></path>
+  </g>
+</svg>

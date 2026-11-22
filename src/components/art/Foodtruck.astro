@@ -1,0 +1,75 @@
+---
+/**
+ * The chicken truck, drawn from the real one.
+ *
+ * Source photos: raw_pictures/fb7.jpg (side on, hatch open — the clearest of
+ * the set), with fb1.jpg and fb10.jpg for the detail. It is a brown box van,
+ * cab at the front left, one long serving hatch, and a side panel that lifts to
+ * become the awning. The signboard is painted on that panel, so it only reads
+ * when the truck is open for business.
+ *
+ * The earlier version of this drawing was a generic red van with a hen on the
+ * roof. The hen was invented; this is the actual vehicle.
+ *
+ * The viewBox ends exactly at the bottom of the wheels, so the drawing has no
+ * ground line of its own — whatever lays it out supplies the street. That is
+ * what lets the truck and the pølsevogn stand on the same line at two
+ * different sizes.
+ */
+interface Props {
+  class?: string;
+  titel?: string;
+  /** Keyline colour. Use bone on the black bands. */
+  streg?: string;
+}
+
+const { class: klasse = '', titel, streg = 'var(--color-sort)' } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 300 171.5"
+  class={klasse}
+  style={`--streg:${streg}`}
+  role={titel ? 'img' : undefined}
+  aria-hidden={titel ? undefined : 'true'}
+  focusable="false"
+>
+  {titel && <title>{titel}</title>}
+  <g
+    fill="none"
+    stroke="var(--streg, #111111)"
+    stroke-width="5"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  >
+    <!-- Cab -->
+    <path d="M18 96c0-9 3-16 9-22l16-16h44v84H18z" fill="var(--color-brun, #7c4a37)"></path>
+    <path d="M48 64h30v26H30z" fill="var(--color-himmel, #93c4dd)"></path>
+
+    <!-- Box body -->
+    <path d="M87 58h192v84H87z" fill="var(--color-brun, #7c4a37)"></path>
+
+    <!-- The side panel, lifted into an awning, with the signboard on it -->
+    <path d="M96 56h176l14-30H110z" fill="var(--color-brun, #7c4a37)"></path>
+    <path d="M150 32h96l-6 18h-96z" fill="var(--color-blaa-skilt, #5f8fa8)"></path>
+    <path d="M164 41h64" stroke-width="4"></path>
+    <path d="M120 56l10-26M268 56l10-26" stroke-width="4"></path>
+
+    <!-- Serving hatch and counter -->
+    <path d="M104 72h158v46H104z" fill="var(--color-papir, #ffffff)"></path>
+    <path d="M98 118h172"></path>
+    <!-- sauce bottles and boxes on the counter, as in the photograph -->
+    <path d="M120 118v-16h10v16M138 118v-13h9v13" stroke-width="4"></path>
+    <path d="M230 118v-14h22v14" stroke-width="4"></path>
+
+    <!-- The phone number painted along the lower body -->
+    <path d="M110 130h58M180 130h34M226 130h34" stroke="var(--color-papir, #ffffff)" stroke-width="7"></path>
+
+    <!-- Wheels -->
+    <path d="M87 142h192M18 142h30"></path>
+    <circle cx="66" cy="150" r="19" fill="var(--streg, #111111)"></circle>
+    <circle cx="66" cy="150" r="7" fill="var(--color-papir, #ffffff)"></circle>
+    <circle cx="228" cy="150" r="19" fill="var(--streg, #111111)"></circle>
+    <circle cx="228" cy="150" r="7" fill="var(--color-papir, #ffffff)"></circle>
+  </g>
+</svg>

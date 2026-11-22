@@ -1,0 +1,76 @@
+---
+/**
+ * The owner, drawn from raw_pictures/owner.jpg — the shorter of the two men,
+ * on the right.
+ *
+ * A friendly likeness rather than a caricature: the features that identify him
+ * are the bald crown with hair kept at the temples, the rectangular glasses,
+ * the broad shoulders and the smile, so those are drawn accurately and nothing
+ * is exaggerated for effect. Same roundel as the rest of the art so he sits in
+ * the column beside the phone number without needing a frame.
+ *
+ * NOT CURRENTLY USED. It was on /kontakt and the likeness was not good enough,
+ * so the page shows no portrait at all rather than a poor one. The slot is
+ * waiting for a photograph — see docs/illustrations.md, `foto-ejer`.
+ */
+interface Props {
+  class?: string;
+  titel?: string;
+}
+
+const { class: klasse = '', titel } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 200 250"
+  class={klasse}
+  role={titel ? 'img' : undefined}
+  aria-hidden={titel ? undefined : 'true'}
+  focusable="false"
+>
+  {titel && <title>{titel}</title>}
+  <g
+    fill="none"
+    stroke="var(--color-sort, #111111)"
+    stroke-width="5"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  >
+    <circle cx="100" cy="100" r="86" fill="var(--color-gul, #ffc526)"></circle>
+
+    <!-- Ears first, so the head covers their inner half -->
+    <circle cx="55" cy="118" r="10" fill="var(--color-hud, #f2d3b6)"></circle>
+    <circle cx="145" cy="118" r="10" fill="var(--color-hud, #f2d3b6)"></circle>
+
+    <!-- Neck, tucked behind the head above and the shirt below -->
+    <path d="M76 134h48v56H76z" fill="var(--color-hud, #f2d3b6)"></path>
+
+    <!-- Head: broad, bald on top -->
+    <path
+      d="M56 94c0-27 20-46 44-46s44 19 44 46v12c0 28-20 46-44 46s-44-18-44-46z"
+      fill="var(--color-hud, #f2d3b6)"></path>
+
+    <!-- What hair is left, kept at the temples -->
+    <path
+      d="M62 130c-4-20-2-36 7-46M138 130c4-20 2-36-7-46"
+      stroke="var(--color-rist, #55504a)"
+      stroke-width="13"
+    ></path>
+
+    <!-- Glasses -->
+    <path d="M67 104h27a5 5 0 0 1 5 5v9a8 8 0 0 1-8 8H70a8 8 0 0 1-8-8v-9a5 5 0 0 1 5-5z"></path>
+    <path d="M106 104h27a5 5 0 0 1 5 5v9a8 8 0 0 1-8 8h-21a8 8 0 0 1-8-8v-9a5 5 0 0 1 5-5z"></path>
+    <path d="M99 110h7M62 110l-8 5M138 110l8 5"></path>
+
+    <!-- Brows, eyes, nose, smile -->
+    <path d="M68 96c7-4 16-4 22 0M110 96c6-4 15-4 22 0" stroke-width="4"></path>
+    <circle cx="80" cy="115" r="3.5" fill="var(--color-sort, #111111)"></circle>
+    <circle cx="120" cy="115" r="3.5" fill="var(--color-sort, #111111)"></circle>
+    <path d="M100 124c0 7-2 11-7 13" stroke-width="4"></path>
+    <path d="M82 143c10 9 26 9 36 0"></path>
+
+    <!-- Shoulders, in the white top he is wearing in the photograph -->
+    <path d="M18 248c8-42 38-62 82-62s74 20 82 62z" fill="var(--color-papir, #ffffff)"></path>
+    <path d="M76 188c8 12 40 12 48 0"></path>
+  </g>
+</svg>

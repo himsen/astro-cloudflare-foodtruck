@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import Ikon from '../components/art/Ikon.astro';
+import { TELEFON, TELEFON_HREF, EMAIL, INDEHAVER, SMILEY_URL } from '../lib/kontakt';
+
+export const prerender = true;
+---
+
+<Base title="Kontakt" description="Ring eller skriv til Chicks on Wheels.">
+  <div class="mx-auto w-full max-w-6xl px-4 pt-8 pb-14 sm:px-6 sm:pt-10 sm:pb-16">
+    <h1 class="text-h1">Kontakt</h1>
+
+    <dl class="mt-8 flex min-w-0 max-w-xl flex-col gap-6">
+      <div>
+        <dt class="text-etiket font-bold text-daempet uppercase">Telefon/SMS</dt>
+        <dd class="mt-2">
+          <a
+            href={TELEFON_HREF}
+            class="flex min-h-12 items-center gap-4 rounded-lg bg-orange px-5 py-4 text-tekst hover:bg-orange-dyb hover:text-white"
+          >
+            <Ikon navn="telefon" class="h-7 w-7 shrink-0" />
+            <span class="text-3xl font-bold tabular-nums sm:text-4xl">{TELEFON}</span>
+          </a>
+        </dd>
+      </div>
+
+      <div>
+        <dt class="text-etiket font-bold text-daempet uppercase">E-mail</dt>
+        <dd class="mt-2">
+          <a
+            href={`mailto:${EMAIL}`}
+            class="flex min-h-12 items-center gap-4 rounded-lg border-2 border-tekst px-5 py-4 hover:bg-tekst hover:text-creme"
+          >
+            <Ikon navn="post" class="h-6 w-6 shrink-0" />
+            <span class="min-w-0 text-lg font-bold [overflow-wrap:anywhere] sm:text-xl">{EMAIL}</span>
+          </a>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-etiket font-bold text-daempet uppercase">Indehaver</dt>
+        <dd class="mt-2 flex items-center gap-4">
+          <img
+            src="/photos/tonny-portraet.webp"
+            width="160"
+            height="160"
+            loading="lazy"
+            alt=""
+            class="h-40 w-40 shrink-0 object-cover object-top"
+          />
+          <span class="min-w-0 text-lg font-bold sm:text-xl">{INDEHAVER}</span>
+        </dd>
+      </div>
+    </dl>
+
+    {
+      SMILEY_URL && (
+        <a
+          href={SMILEY_URL}
+          rel="noopener noreferrer"
+          target="_blank"
+          class="mt-10 flex max-w-xl items-center gap-4 rounded-2xl border border-kant bg-kort p-5 shadow-[0_6px_18px_-10px_rgb(42_20_12/0.3)] hover:border-smiley"
+        >
+          <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-smiley text-white" aria-hidden="true">
+            <Ikon navn="smiley" class="h-9 w-9" />
+          </span>
+          <span>
+            <span class="block text-etiket font-bold text-daempet uppercase">Fødevarekontrol</span>
+            <span class="mt-1 block text-lg font-bold text-smiley underline underline-offset-4">
+              Se vores smiley hos Fødevarestyrelsen
+            </span>
+          </span>
+        </a>
+      )
+    }
+  </div>
+</Base>

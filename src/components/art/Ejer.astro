@@ -1,0 +1,64 @@
+---
+import HoeneFigur from './HoeneFigur.astro';
+
+/**
+ * The owner, in a roundel, with the hen on her shoulder.
+ *
+ * Drawn as line art on paper rather than filled figure work: the keyline
+ * carries it, and nothing here commits to a likeness the real drawing will
+ * have to match. This is the slot most obviously waiting for the commissioned
+ * version — see docs/illustrations.md, ratio 4:5.
+ */
+interface Props {
+  class?: string;
+  titel?: string;
+}
+
+const { class: klasse = '', titel } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 200 250"
+  class={klasse}
+  role={titel ? 'img' : undefined}
+  aria-hidden={titel ? undefined : 'true'}
+  focusable="false"
+>
+  {titel && <title>{titel}</title>}
+  <g
+    fill="none"
+    stroke="var(--color-sort, #111111)"
+    stroke-width="5"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  >
+    <circle cx="100" cy="112" r="84" fill="var(--color-gul, #ffc526)"></circle>
+
+    <!-- Shoulders and apron, breaking the frame at the bottom -->
+    <path d="M44 240c4-36 26-58 56-58s52 22 56 58z" fill="var(--color-papir, #ffffff)"></path>
+    <path d="M78 186h44v54H78z" fill="var(--color-tomat, #e8341f)"></path>
+    <path d="M78 196H58M122 196h20"></path>
+
+    <!-- Neck and head -->
+    <path d="M88 160h24v26H88z" fill="var(--color-papir, #ffffff)"></path>
+    <path d="M68 98h64v40a32 32 0 0 1-64 0z" fill="var(--color-papir, #ffffff)"></path>
+    <path d="M66 100c-9 22-7 45 3 60M134 100c9 22 7 45-3 60"></path>
+
+    <!-- Cap -->
+    <path d="M62 98c0-24 17-40 38-40s38 16 38 40z" fill="var(--color-tomat, #e8341f)"></path>
+    <path d="M54 98h92"></path>
+
+    <!-- Face -->
+    <circle cx="86" cy="122" r="3.5" fill="var(--color-sort, #111111)" stroke="none"></circle>
+    <circle cx="114" cy="122" r="3.5" fill="var(--color-sort, #111111)" stroke="none"></circle>
+    <path d="M88 138c7 7 17 7 24 0"></path>
+
+    <!-- The hen, along for the ride -->
+    <g
+      transform="translate(126 150) scale(0.46)"
+      style="--stregbredde: 11; --krop: var(--color-papir, #ffffff); --kam: var(--color-tomat, #e8341f)"
+    >
+      <HoeneFigur />
+    </g>
+  </g>
+</svg>

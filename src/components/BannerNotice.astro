@@ -1,0 +1,20 @@
+---
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<!-- Full-bleed and directly under the nav, so it reads as part of the dark band
+     rather than as a box someone left on the page. mork-tekst on mork is well
+     above 15:1; tekst on the orange marker is 5.2:1. -->
+<aside data-mork class="bg-mork text-mork-tekst">
+  <div class="mx-auto flex w-full max-w-6xl items-start justify-center gap-3 px-4 py-3 sm:px-6">
+    <span
+      class="mt-px flex h-6 w-6 shrink-0 items-center justify-center bg-orange text-base font-bold text-tekst"
+      aria-hidden="true">!</span
+    >
+    <p class="text-base font-bold sm:text-lg">{text}</p>
+  </div>
+</aside>
